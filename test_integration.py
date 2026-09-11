@@ -961,14 +961,24 @@ def main():
         check("a follow-up is allowed to be short",
               drafter.validate("Fullstack SWE at Quill", short_body, quill, min_body=180) == "")
 
-        for phrase in ("I'm remote from Bogotá, UTC-5, full overlap with US hours.",
-                       "Not a pilot: real customers, real money.",
-                       "Would it be worth a conversation?"):
-            worn = ("Hi,\n\n" + ("I built the eval loop behind it. " * 12) + phrase
-                    + "\n\nJuan Anez")
-            check("refuses the burned sentence %r" % phrase[:34],
-                  "worn-out" in drafter.validate("Fullstack SWE at Quill", worn, quill),
-                  drafter.validate("Fullstack SWE at Quill", worn, quill))
+        line = "I am remote from Bogota with full overlap with your hours"
+        body_with = "Hi,\n\n" + ("I built the eval loop behind it. " * 11) + line + ".\n\nJuan Anez"
+        check("the first email may use any sentence it likes",
+              drafter.validate("Fullstack SWE at Quill", body_with, quill) == "",
+              drafter.validate("Fullstack SWE at Quill", body_with, quill))
+        check("but a second email repeating it word for word is refused",
+              "repeats a sentence" in drafter.validate(
+                  "Fullstack SWE at Quill", body_with, quill,
+                  used={line.lower()}),
+              drafter.validate("Fullstack SWE at Quill", body_with, quill,
+                               used={line.lower()}))
+        check("saying the same thing differently is fine",
+              drafter.validate("Fullstack SWE at Quill", body_with, quill,
+                               used={"i work from colombia and overlap your afternoons"}) == "")
+        check("short sentences are not worth deduplicating",
+              drafter.sentences_of("Hi. Thanks. I built the whole eval loop behind it.")
+              == ["i built the whole eval loop behind it"],
+              drafter.sentences_of("Hi. Thanks. I built the whole eval loop behind it."))
 
         opener = "The turn-latency line is what made me write about this"
         echoed = ("Hi,\n\n" + opener + ". "
@@ -980,6 +990,48 @@ def main():
         check("a different opening is fine",
               drafter.validate("Fullstack SWE at Quill", echoed, quill,
                                openers=["Something else entirely happened here today"]) == "")
+
+        print("\n[24b] The closer, and the punctuation that gives a machine away")
+        closing = "Worth a conversation"
+        with_closer = ("Hi,\n\n" + ("I built the eval loop behind it. " * 11)
+                       + "\n\n" + closing + "?\n\nJuan Anez")
+        check("the closing question is found however short it is",
+              drafter.closer_of(with_closer) == "worth a conversation",
+              drafter.closer_of(with_closer))
+        check("the signature is not mistaken for the closer",
+              drafter.closer_of("Hi,\n\nI built the eval loop behind it.\n\nJuan Anez")
+              == "i built the eval loop behind it")
+        check("a short closer still dedupes, though sentences_of ignores it",
+              drafter.sentences_of(with_closer) and
+              "worth a conversation" not in drafter.sentences_of(with_closer))
+        check("a second email ending the same way is refused",
+              "ends the same way" in drafter.validate(
+                  "Fullstack SWE at Quill", with_closer, quill,
+                  used={"worth a conversation"}),
+              drafter.validate("Fullstack SWE at Quill", with_closer, quill,
+                               used={"worth a conversation"}))
+        check("ending differently is fine",
+              drafter.validate("Fullstack SWE at Quill", with_closer, quill,
+                               used={"happy to send over the write-up"}) == "")
+
+        dashed = "Hi,\n\n" + ("I built the eval loop, the slow half, behind it. " * 9) + "\n\nJuan Anez"
+        check("commas are fine", drafter.validate("Fullstack SWE at Quill", dashed, quill) == "",
+              drafter.validate("Fullstack SWE at Quill", dashed, quill))
+        for dash, label in (("\u2014", "em dash"), ("\u2013", "en dash")):
+            broken = dashed.replace("loop, the slow half,", "loop %s the slow half %s" % (dash, dash), 1)
+            check("the %s is refused in the body" % label,
+                  "long dash" in drafter.validate("Fullstack SWE at Quill", broken, quill),
+                  drafter.validate("Fullstack SWE at Quill", broken, quill))
+        check("the subject may still use one",
+              drafter.validate("Fullstack SWE \u2014 Quill", dashed, quill) == "",
+              drafter.validate("Fullstack SWE \u2014 Quill", dashed, quill))
+        check("the corpus does not model the punctuation it forbids",
+              "\u2014" not in (ROOT / "profile.md").read_text()
+              and "\u2013" not in (ROOT / "profile.md").read_text())
+        heads = [l for l in (ROOT / "profile.md").read_text().splitlines()
+                 if l.startswith("## ")]
+        check("and it carries no section twice", len(heads) == len(set(heads)),
+              [h for h in heads if heads.count(h) > 1])
 
         check("the retry is told what was rejected",
               "PREVIOUS ATTEMPT WAS REJECTED" in drafter.posting_for(

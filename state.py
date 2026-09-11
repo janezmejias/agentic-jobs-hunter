@@ -285,6 +285,42 @@ def recent_openers(con, limit=40):
     return out
 
 
+SENTENCE_SPLIT = __import__("re").compile(r"(?<=[.!?])\s+")
+
+
+def recent_sentences(con, limit=80, min_words=6):
+    """
+    Sentences already used, normalised. No sentence should appear word for word
+    in two different emails — that, rather than any particular turn of phrase,
+    is what makes a batch look machine-made.
+    """
+    out = set()
+    for r in con.execute("SELECT body FROM drafts ORDER BY created_at DESC, rowid DESC "
+                         "LIMIT ?", (int(limit),)):
+        for sentence in SENTENCE_SPLIT.split((r["body"] or "").replace("\n", " ")):
+            sentence = " ".join(sentence.split()).lower().strip(" .!?")
+            if len(sentence.split()) >= min_words:
+                out.add(sentence)
+    return out
+
+
+def recent_closers(con, limit=80):
+    """The last prose sentence of each recent draft, however short."""
+    out = set()
+    for r in con.execute("SELECT body FROM drafts ORDER BY created_at DESC, rowid DESC "
+                         "LIMIT ?", (int(limit),)):
+        paragraphs = [p.strip() for p in (r["body"] or "").strip().split("\n\n") if p.strip()]
+        for para in reversed(paragraphs[:-1] if len(paragraphs) > 1 else paragraphs):
+            pieces = [x for x in SENTENCE_SPLIT.split(para.replace("\n", " ")) if x.strip()]
+            if not pieces:
+                continue
+            last = " ".join(pieces[-1].split()).lower().strip(" .!?")
+            if len(last.split()) >= 3:
+                out.add(last)
+                break
+    return out
+
+
 def latest_draft(con, email):
     # rowid breaks the tie: created_at only has second resolution, and an edit
     # from the UI can land in the same second as the draft it replaces. Without

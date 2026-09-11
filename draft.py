@@ -126,11 +126,12 @@ serverless" says nothing to somebody scanning an inbox. A subject that names
 neither the role nor the company is rejected.
 
 DO NOT REPEAT YOURSELF ACROSS EMAILS
-These go out as a batch to people who may compare notes. The corpus lists
-sentences that are burned because they already went to fifteen different
-inboxes word for word; writing one of them wastes the attempt. Never open with
-"I saw". Mention the timezone only when the posting cares about overlap, and
-never twice the same way.
+These go out as a batch to people who may compare notes. No sentence may appear
+word for word in two of them — the closing question most of all, which is the
+easiest one to reach for twice — not the closer, not the sign-off, not the line
+about where he lives. A sentence already used in this batch is rejected, so
+writing one wastes the attempt. Never open with "I saw". Mention the timezone
+only when the posting cares about overlap, and say it differently each time.
 
 --- PROFILE CORPUS ---
 {corpus}
@@ -219,15 +220,6 @@ def unsupported_timespan(body, corpus):
     return ""
 
 
-# Sentences that turned up verbatim across a real batch. Any one of them landing
-# in fifteen different inboxes is what makes a pile of mail look generated, so
-# they are refused rather than discouraged.
-WORN_OUT = (
-    "remote from bogot", "full overlap with us hours", "not a pilot",
-    "real customers, real money", "on call when something breaks",
-    "would it be worth a conversation", "i'd like to talk",
-)
-
 MAX_WORDS = 150
 MIN_WORDS = 65
 
@@ -241,11 +233,14 @@ def subject_is_clear(subject, contact):
     low = subject.lower()
     role = (contact.get("role") or "").lower()
     company = (contact.get("company") or "").lower()
+    # One distinctive word is enough. Demanding half of them breaks on postings
+    # whose "role" is really a location — "Location: Blacksburg, Virginia, USA" —
+    # where a perfectly clear subject only echoes one word of it.
     for anchor in (role, company):
         if not anchor:
             continue
-        words = [w for w in re.split(r"[^a-z0-9+.]+", anchor) if len(w) > 2]
-        if words and sum(1 for w in words if w in low) >= max(1, len(words) // 2):
+        words = [w for w in re.split(r"[^a-z0-9+.]+", anchor) if len(w) >= 4]
+        if any(w in low for w in words):
             return True
     # Nothing to anchor to: at least sound like an application, not a pitch.
     if not role and not company:
@@ -253,7 +248,7 @@ def subject_is_clear(subject, contact):
     return False
 
 
-def validate(subject, body, contact, corpus="", min_body=350, openers=()):
+def validate(subject, body, contact, corpus="", min_body=350, openers=(), used=()):
     subject, body = tidy(subject), (body or "").strip()
     if not 15 <= len(subject) <= 90:
         return "subject is %d characters" % len(subject)
@@ -267,10 +262,23 @@ def validate(subject, body, contact, corpus="", min_body=350, openers=()):
         return "body is only %d words" % count
     if not min_body <= len(body) <= 1600:
         return "body is %d characters" % len(body)
-    lowered_body = body.lower()
-    for phrase in WORN_OUT:
-        if phrase in lowered_body:
-            return "reuses the worn-out phrase %r" % phrase
+    # Nothing dates an email as generated faster than the long dash. Someone
+    # typing in a hurry reaches for a comma, a period or a colon; the model
+    # reaches for one of these and then does it twice more in the same
+    # paragraph. Subjects get a pass: "Role - Company" is how people write.
+    dashes = body.count("\u2014") + body.count("\u2013")
+    if dashes:
+        return ("uses the long dash %d time%s; a comma, period or colon does "
+                "the same work" % (dashes, "" if dashes == 1 else "s"))
+    # Saying where he lives is not a crime; saying it in the same fifteen words
+    # fifteen times is. So the rule is about repetition, not about wording.
+    if used:
+        for sentence in sentences_of(body):
+            if sentence in used:
+                return "repeats a sentence from another email: %r" % sentence[:70]
+        closer = closer_of(body)
+        if closer and closer in used:
+            return "ends the same way as another email: %r" % closer[:60]
     opening = " ".join(_opening_words(body))
     for earlier in openers:
         if opening and opening == " ".join(earlier.lower().split()[:5]):
@@ -295,6 +303,34 @@ def validate(subject, body, contact, corpus="", min_body=350, openers=()):
         if url.rstrip("/.,);") not in allowed:
             return "invented the URL %s" % url
     return ""
+
+
+def closer_of(body):
+    """
+    The last sentence before the signature. It is the most repeatable thing in
+    an email — "Worth a conversation?" came out twelve times in one batch — and
+    it is short, so the six-word dedupe never saw it.
+    """
+    paragraphs = [p.strip() for p in (body or "").strip().split("\n\n") if p.strip()]
+    # The signature is the tail; the closer is the last prose paragraph before it.
+    for para in reversed(paragraphs[:-1] if len(paragraphs) > 1 else paragraphs):
+        pieces = [x for x in re.split(r"(?<=[.!?])\s+", para.replace("\n", " ")) if x.strip()]
+        if not pieces:
+            continue
+        last = " ".join(pieces[-1].split()).lower().strip(" .!?")
+        if len(last.split()) >= 3:
+            return last
+    return ""
+
+
+def sentences_of(body, min_words=6):
+    """Normalised sentences long enough to be worth comparing."""
+    out = []
+    for sentence in re.split(r"(?<=[.!?])\s+", (body or "").replace("\n", " ")):
+        sentence = " ".join(sentence.split()).lower().strip(" .!?")
+        if len(sentence.split()) >= min_words:
+            out.append(sentence)
+    return out
 
 
 def _opening_words(body, n=5):
@@ -495,7 +531,7 @@ class Spend:
 
 
 def with_retry(client, sdk, stable, contact, corpus, attempts=3, previous=None,
-               stage=0, max_stage=2, openers=()):
+               stage=0, max_stage=2, openers=(), used=()):
     spend, last = [], ""
     minimum = 180 if previous else 350       # a follow-up is deliberately short
     for _ in range(attempts):
@@ -503,7 +539,7 @@ def with_retry(client, sdk, stable, contact, corpus, attempts=3, previous=None,
             subject, body, card, usage = request_draft(
                 client, stable, contact, previous, stage, max_stage, openers, last)
             spend.append(usage)
-            reason = validate(subject, body, contact, corpus, minimum, openers)
+            reason = validate(subject, body, contact, corpus, minimum, openers, used)
             if not reason:
                 return tidy(subject), tidy_body(body), card, spend, ""
             last = reason
@@ -630,7 +666,10 @@ def main():
         # Only what is actually broken. Re-running everything would pay again for
         # the drafts that are already good — and the rules tighten over time, so
         # a draft written last week can stop passing today.
-        pending, fallbacks, stale = [], 0, 0
+        pending, fallbacks, stale, echoes = [], 0, 0, 0
+        # Repetition is only visible across drafts, so walk them keeping what has
+        # been said. The first to use a sentence keeps it; later ones are redone.
+        so_far = set()
         for c in state.contacts(con, states=("new", "drafted")):
             d = state.latest_draft(con, c["email"])
             if not d:
@@ -638,11 +677,23 @@ def main():
             if d["origin"] == "fallback":
                 fallbacks += 1
                 pending.append(c)
-            elif validate(d["subject"], d["body"], c, corpus):
+                continue
+            if validate(d["subject"], d["body"], c, corpus):
                 stale += 1
                 pending.append(c)
+                continue
+            body_sentences = set(sentences_of(d["body"]))
+            closer = closer_of(d["body"])
+            if body_sentences & so_far or (closer and closer in so_far):
+                echoes += 1
+                pending.append(c)
+                continue
+            so_far |= body_sentences
+            if closer:
+                so_far.add(closer)
         print("Fixing %d drafts: %d fell back to the template, %d no longer pass the "
-              "current rules.\n" % (len(pending), fallbacks, stale))
+              "current rules, %d echo another email.\n"
+              % (len(pending), fallbacks, stale, echoes))
     else:
         pending = state.contacts(con, states=("new", "drafted"))
 
@@ -672,6 +723,10 @@ def main():
     # What has already been written, so the next one is told not to echo it. The
     # list grows as the run goes: the fiftieth email knows about the first.
     openers = state.recent_openers(con) if not args.redo else []
+    # Nothing written before may be repeated word for word by anything written now.
+    used = set() if args.redo else state.recent_sentences(con)
+    if not args.redo:
+        used.update(state.recent_closers(con))
 
     for i, c in enumerate(pending, 1):
         if args.limit and written >= args.limit:
@@ -697,7 +752,7 @@ def main():
 
         subject, body, card, usages, reason = with_retry(
             client, sdk, stable, c, corpus, previous=previous,
-            stage=stage, max_stage=args.max_follow_ups, openers=openers)
+            stage=stage, max_stage=args.max_follow_ups, openers=openers, used=used)
         for u in usages:
             spend.add(u)
         if reason.startswith("AUTH"):
@@ -722,6 +777,10 @@ def main():
             opening = " ".join(_opening_words(body, 8))
             if opening:
                 openers.append(opening)
+            used.update(sentences_of(body))
+            closer = closer_of(body)
+            if closer:
+                used.add(closer)
         state.save_draft(con, c["email"], fp, subject, body, origin, MODEL, reason, stage)
         if not args.follow_up:
             state.set_status(con, c["email"], "drafted")

@@ -18,7 +18,7 @@ below that it silently doesn't cache. Run `python3 draft.py --diagnose` after
 editing this file.
 -->
 
-# Juan Anez — profile corpus
+# Juan Anez profile corpus
 
 ## Identity
 
@@ -56,10 +56,9 @@ linkedin.com/in/janezmejias
 ## CARD-AGENT-PLATFORM
 **Tags:** llm agents, production, aws, serverless, multi-tenant, whatsapp, voice,
 chatbots, genai, applied ai, startup, founding
-**Role:** Lead AI Engineer at Vitzi tech (Yatendi), June 2024 – present.
+**Role:** Lead AI Engineer at Vitzi tech (Yatendi), June 2024 ,  present.
 
-Built and still operates a multi-tenant agent platform on AWS serverless —
-Lambda, DynamoDB, EventBridge Scheduler, SQS FIFO, Secrets Manager — handling
+Built and still operates a multi-tenant agent platform on AWS serverless, Lambda, DynamoDB, EventBridge Scheduler, SQS FIFO, Secrets Manager, handling
 WhatsApp, Instagram and voice conversations for businesses that pay for it and
 depend on it. He carries the pager for it himself.
 
@@ -123,7 +122,7 @@ platforms, rate limiting, or queueing under hostile external rules.
 ## CARD-TELECOM-TMF
 **Tags:** telecom, tmf, gcp, cloud run, spanner, microservices, java, spring boot,
 architecture, greenfield, api design
-**Role:** AI Software Engineer at Enghouse Networks, March 2023 – present.
+**Role:** AI Software Engineer at Enghouse Networks, March 2023 ,  present.
 
 An American operator needed its systems exposed as TMF-compliant APIs, with no
 existing platform to build on. He led the design and delivery of fourteen
@@ -131,7 +130,7 @@ Java/Spring Boot microservices on GCP Cloud Run implementing TMF standards.
 
 Chose Cloud Spanner over a conventional relational store because the address
 model needed GEOGRAPHY columns, SCD-2 history and horizontal reach across
-regions — and designed the schema forward-compatible with the next phase, so the
+regions, and designed the schema forward-compatible with the next phase, so the
 wireline expansion landed without a migration.
 
 **Use when:** the posting is telecom, large-scale microservices, GCP, distributed
@@ -175,10 +174,10 @@ partial failure moves money.
 
 ## CARD-PAYMENTS-SCALE
 **Tags:** payments, high traffic, retail, scale, mobile, full stack
-**Role:** Senior Software Engineer at Emida Technologies, Jan 2017 – May 2022.
+**Role:** Senior Software Engineer at Emida Technologies, Jan 2017 ,  May 2022.
 
 Design and development of high-traffic web and Android applications for payments
-and retail, with full SDLC engineering practice — coding standards, code review,
+and retail, with full SDLC engineering practice, coding standards, code review,
 source control, build processes.
 
 **Use when:** the posting emphasizes high traffic, payments volume, or long-run
@@ -187,7 +186,7 @@ production ownership.
 ## CARD-TECH-LEAD
 **Tags:** leadership, tech lead, mentoring, team, delivery, stakeholders,
 staff, principal
-**Role:** Technical Lead at 24/7 Software, Nov 2021 – Dec 2022.
+**Role:** Technical Lead at 24/7 Software, Nov 2021 ,  Dec 2022.
 
 Led delivery across multiple projects: estimation, coordinating frontend and
 backend release integration, working with BA teams and clients on usability and
@@ -210,8 +209,8 @@ the candidate works with AI.
 ## CARD-ENTERPRISE-JAVA
 **Tags:** legacy, modernization, migration, java, oracle, weblogic, soap, jbpm,
 solr, enterprise, integration, monolith
-**Role:** Java Software Engineer at Indra (2016–2017) and Fundación Petrociencia
-(2013–2016).
+**Role:** Java Software Engineer at Indra (2016-2017) and Fundación Petrociencia
+(2013-2016).
 
 Large-scale enterprise Java: Oracle Database and WebLogic 12c, SOAP and RPC
 services alongside REST, Spring MVC and Spring REST, jBPM for automating
@@ -221,8 +220,8 @@ workflow management for reservoir studies and document/norm protection for
 integrated studies.
 
 **Use when:** the posting involves modernizing or integrating with an existing
-enterprise estate — SOAP services, an Oracle/WebLogic stack, workflow engines,
-or search — rather than greenfield work. This is also the card that shows the
+enterprise estate, SOAP services, an Oracle/WebLogic stack, workflow engines,
+or search, rather than greenfield work. This is also the card that shows the
 twelve years are real and not padding.
 
 ## CARD-FULLSTACK
@@ -254,8 +253,8 @@ where the same person owns the interface and the service behind it.
 - Certifications: Introduction to Data Science (statistical programming in R),
   R Programming, Design Patterns & SOLID Principles, Software Architecture Case
   Studies, Amazon EC2.
-- Education: BS Computer Science, Universidad Rafael Belloso Chacín (2008–2011).
-  MSc Computer Applications, University of Zulia (2018–2020).
+- Education: BS Computer Science, Universidad Rafael Belloso Chacín (2008-2011).
+  MSc Computer Applications, University of Zulia (2018-2020).
 - Availability: full-time remote, or contractor. Full overlap with US hours.
 
 ## Never claim
@@ -269,22 +268,6 @@ where the same person owns the interface and the service behind it.
 
 ---
 
-## How to open (rotate these; never reuse an opener)
-
-A cold email is read in the first line. Good openers name something specific
-from the posting. Patterns that work, in rough order of strength:
-
-1. Name the exact constraint the posting mentions, then say he has hit it.
-   *"The turn-latency line is what made me write."*
-2. Name the role and the one thing he'd bring.
-   *"About the Founding AI Engineer role you posted — what I'd bring is the
-   unglamorous half."*
-3. Name a shared problem shape.
-   *"You're putting agents into a system that already has an on-call rotation.
-   That's the work I do."*
-4. When the posting is thin, say so plainly and be short.
-   *"Your Hacker News post didn't say much about the stack, so I'll be brief."*
-
 ## Phrases that must never appear
 
 These read as template and cost more than they earn:
@@ -294,8 +277,8 @@ These read as template and cost more than they earn:
 - "I came across your posting" / "I stumbled upon"
 - "passionate about", "cutting-edge", "state-of-the-art", "leverage",
   "synergy", "game-changing", "world-class", "rockstar", "ninja"
-- "I believe I would be a great fit" — say what fits instead
-- "Please find my resume attached" — the attachment speaks for itself
+- "I believe I would be a great fit", say what fits instead
+- "Please find my resume attached", the attachment speaks for itself
 - "Thank you for your time and consideration"
 - Any sentence praising the company's mission, product or vision
 - Any sentence that starts "As a seasoned..."
@@ -309,7 +292,7 @@ These read as template and cost more than they earn:
 - Signature block from § Signature, nothing more.
 - No bullet lists. No headers. No markdown. Plain prose, like a person typing.
 - Mention the timezone or availability **only** when the posting cares about
-  overlap — and never in the same words twice.
+  overlap, and never in the same words twice.
 
 ## Do not reuse a sentence
 
@@ -328,7 +311,7 @@ needs a timezone line at all.
 Never start with "I saw". Two thirds of a real batch opened that way.
 
 Name something from the posting and say why it made him write, or name the role
-and what he would bring, or — when the posting is thin — say so plainly and be
+and what he would bring, or, when the posting is thin, say so plainly and be
 short. Each email must open differently from the last.
 
 ## The subject line
@@ -338,100 +321,12 @@ role, and the company when the posting names it**. Four to nine words, no emoji,
 no exclamation marks.
 
 Never describe him in the subject. "Multi-tenant agent platform, AWS serverless,
-live customers" says nothing to somebody scanning an inbox — it reads like a
+live customers" says nothing to somebody scanning an inbox, it reads like a
 pitch, which is how it gets deleted.
 
     Founding AI Engineer at Astoria
     Application: Voice AI Engineer
-    Staff Engineer, Agentic AI — Republic Services
-
-## Phrases that must never appear
-
-These read as template and cost more than they earn:
-
-- "I hope this email finds you well" / "I hope you're doing well"
-- "I am excited to apply" / "I am thrilled" / "I would love the opportunity"
-- "I came across your posting" / "I stumbled upon"
-- "passionate about", "cutting-edge", "state-of-the-art", "leverage",
-  "synergy", "game-changing", "world-class", "rockstar", "ninja"
-- "I believe I would be a great fit" — say what fits instead
-- "Please find my resume attached" — the attachment speaks for itself
-- "Thank you for your time and consideration"
-- Any sentence praising the company's mission, product or vision
-- Any sentence that starts "As a seasoned..."
-
----
-
-## General facts (safe to state)
-
-- Twelve years of software engineering; roughly two years focused on LLM agents
-  in production.
-- Domains: banking, telecom, healthcare, retail, payments.
-- Primary stack: Java, Spring Boot, Spring AI. Also Angular, React, Python.
-- Cloud: AWS (Lambda, DynamoDB, EventBridge, SQS, Secrets Manager) and GCP
-  (Cloud Run, Spanner, Pub/Sub, Cloud DLP, KMS, Secret Manager).
-- Data: PostgreSQL, MySQL, Oracle, DynamoDB, Spanner.
-- Practice: trunk-based development, GitLab MR gates, dependency and container
-  scanning in CI, Kubernetes, microservices, RAG.
-- Certifications: Introduction to Data Science (statistical programming in R),
-  R Programming, Design Patterns & SOLID Principles, Software Architecture Case
-  Studies, Amazon EC2.
-- Education: BS Computer Science, Universidad Rafael Belloso Chacín (2008–2011).
-  MSc Computer Applications, University of Zulia (2018–2020).
-- Availability: full-time remote, or contractor. Full overlap with US hours.
-
-## Never claim
-
-- Any employer, client, product, number or certification not listed above.
-- Specific revenue, headcount, user counts or latency figures beyond the ~1s
-  voice turn target and the ~2s threshold it replaced.
-- Familiarity with the reader's company, product or funding.
-- Security clearance, US work authorization, or a visa status. He is in Colombia.
-- Fluency claims beyond: Spanish native, English professional working.
-
----
-
-## How to open (rotate these; never reuse an opener)
-
-A cold email is read in the first line. Good openers name something specific
-from the posting. Patterns that work, in rough order of strength:
-
-1. Name the exact constraint the posting mentions, then say he has hit it.
-   *"The turn-latency line is what made me write."*
-2. Name the role and the one thing he'd bring.
-   *"About the Founding AI Engineer role you posted — what I'd bring is the
-   unglamorous half."*
-3. Name a shared problem shape.
-   *"You're putting agents into a system that already has an on-call rotation.
-   That's the work I do."*
-4. When the posting is thin, say so plainly and be short.
-   *"Your Hacker News post didn't say much about the stack, so I'll be brief."*
-
-## Phrases that must never appear
-
-These read as template and cost more than they earn:
-
-- "I hope this email finds you well" / "I hope you're doing well"
-- "I am excited to apply" / "I am thrilled" / "I would love the opportunity"
-- "I came across your posting" / "I stumbled upon"
-- "passionate about", "cutting-edge", "state-of-the-art", "leverage",
-  "synergy", "game-changing", "world-class", "rockstar", "ninja"
-- "I believe I would be a great fit" — say what fits instead
-- "Please find my resume attached" — the attachment speaks for itself
-- "Thank you for your time and consideration"
-- Any sentence praising the company's mission, product or vision
-- Any sentence that starts "As a seasoned..."
-
-## Shape of a good email
-
-- 90–160 words. Three short paragraphs at most.
-- Paragraph 1: why this posting, in one or two sentences. Specific.
-- Paragraph 2: the card. One concrete thing he built, with its result.
-- Paragraph 3: one line of context (the twelve years, or availability), then a
-  simple next step as a question.
-- Signature block from § Signature, nothing more.
-- No bullet lists. No headers. No markdown. Plain prose, like a person typing.
-
+    Staff Engineer, Agentic AI, Republic Services
 
 ## Shape of a follow-up
 
@@ -446,37 +341,27 @@ A follow-up is not the first email again. It is shorter and it adds something.
 - End with an easy out: it is fine if the role is filled or not a fit.
 - Same signature block.
 
-### Example 4 — follow-up, seven days later
-
-> Hi Sarah,
->
-> I wrote last week about the Voice AI role. One thing I left out: the part that
-> actually took the longest wasn't the streaming bridge, it was the eval loop
-> behind it — replaying real conversations against every prompt change so we
-> could tell a regression from noise.
->
-> If the role is filled or I'm off base, no problem at all. If not, I'd still
-> like to hear how you're measuring quality today.
->
-> Juan Anez
-> linkedin.com/in/janezmejias
-
----
-
 ## Register
 
-Not templates — these were copied word for word when they were written out in
-full, which is how the batch ended up sounding identical. What they show is the
-voice: flat, concrete, no adjectives doing work a number could do.
+Flat, concrete, no adjective doing work a number could do. Short sentences.
+He states what he built and what it cost him, and he does not editorialise
+about it afterwards.
 
-> The turn-latency line is what made me write.
+What he never does: explain the reader's own business back to them, stack
+three clauses where one would do, or reach for a striking phrase. If a line
+sounds like it was polished, it is wrong.
 
-> What I'd bring to a founding role is the unglamorous half.
+No exemplar sentences live here on purpose. Every email is written from the
+posting in front of it, never assembled from fragments.
 
-> Your post didn't say much about the stack, so I'll keep this short.
+## Punctuation
 
-> The part that took longest wasn't the bridge, it was knowing whether a change
-> helped.
+Commas, periods, colons, question marks. Parentheses when something is genuinely
+an aside.
 
-Every email must be written from the posting in front of it, not assembled from
-fragments like these.
+The long dash (either of them) is forbidden anywhere in the body. It is the
+single clearest signal that an email was machine-written, and it is never
+necessary: a comma, a period or a colon carries the same break. This rule is
+checked and a draft that breaks it is rejected.
+
+Subject lines may use a plain hyphen to separate role from company.
