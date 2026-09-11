@@ -253,7 +253,12 @@ def validate(subject, body, contact, corpus="", min_body=350, openers=(), used=(
     if not 15 <= len(subject) <= 90:
         return "subject is %d characters" % len(subject)
     if not subject_is_clear(subject, contact):
-        return ("subject %r names neither the role nor the company" % subject[:60])
+        # Say which word is missing. "Names neither the role nor the company"
+        # was true and still left the retry guessing: one posting burned three
+        # attempts on a subject that never once said "SpendAi".
+        anchor = (contact.get("role") or "").strip() or (contact.get("company") or "").strip()
+        return ("subject %r has to contain %r and does not"
+                % (subject[:60], anchor[:40]))
     count = len(body.split())
     top = MAX_WORDS if min_body >= 350 else 90
     if count > top:

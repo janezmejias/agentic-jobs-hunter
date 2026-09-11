@@ -946,7 +946,7 @@ def main():
               not drafter.subject_is_clear(
                   "Multi-tenant agent platform, AWS serverless, live customers", quill))
         check("and validate() says so",
-              "names neither the role nor the company" in drafter.validate(
+              "has to contain" in drafter.validate(
                   "Multi-tenant agent platform, AWS serverless", good_body, quill))
         check("with nothing to anchor to, any subject is allowed",
               drafter.subject_is_clear("About your posting", {"company": "", "role": ""}))
