@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  SECRETS — never commit these
+# ─────────────────────────────────────────────────────────────────────────────
+# config.ini holds the Gmail app password.
+gmail-sender/config.ini
+.env
+*.pem
+*.key
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  OTHER PEOPLE'S DATA — this repository is public
+# ─────────────────────────────────────────────────────────────────────────────
+# Everything below carries the email addresses of recruiters and hiring managers,
+# plus the letters written to them. Their contact details are not ours to
+# publish, and a committed list is a scraping target.
+state.db
+state.db-wal
+state.db-shm
+state.db*.bak
+gmail-sender/recipients.csv
+gmail-sender/drafts.md
+gmail-sender/unsubscribed.txt
+gmail-sender/registro_envios.csv
+ai-job-hunter/data/
+~/ai-job-hunter/
+
+# Your CV, if you drop it in for the attachment.
+gmail-sender/cv.pdf
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  GENERATED — rebuilt from the code, no reason to track
+# ─────────────────────────────────────────────────────────────────────────────
+.run/
+gmail-sender/log.txt
+gmail-sender/refresh-log.txt
+gmail-sender/cron-errors.txt
+gmail-sender/.send.lock
+gmail-sender/.refresh.lock
+*.tmp
+__pycache__/
+*.pyc
+
+# UI build output and dependencies
+ui/node_modules/
+ui/dist/
+ui/tsconfig.tsbuildinfo
+ui/*.tsbuildinfo
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

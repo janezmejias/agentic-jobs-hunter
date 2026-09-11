@@ -1,0 +1,18 @@
+{{greeting}},
+
+I'm writing about {{reference}}.
+
+>>> REPLACE THIS PARAGRAPH with two or three sentences of your own: what you have
+>>> built, with what stack, and why it fits this role. Concrete and short.
+>>> Example: "I've spent N years building LLM systems; I run a RAG pipeline over X
+>>> that answers Y queries a day."
+
+I'm based in Colombia (UTC-5) and work full-time remotely, with full overlap with
+US business hours.
+
+Here's the posting for reference: {{url}}
+
+My CV is attached. Happy to share more.
+
+Juan Anez
+>>> your phone / LinkedIn / GitHub
