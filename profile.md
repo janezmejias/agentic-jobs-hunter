@@ -60,8 +60,8 @@ chatbots, genai, applied ai, startup, founding
 
 Built and still operates a multi-tenant agent platform on AWS serverless —
 Lambda, DynamoDB, EventBridge Scheduler, SQS FIFO, Secrets Manager — handling
-WhatsApp, Instagram and voice conversations for live businesses. Not a pilot:
-real customers, real money, he is the one on call.
+WhatsApp, Instagram and voice conversations for businesses that pay for it and
+depend on it. He carries the pager for it himself.
 
 **Use when:** the posting is about shipping LLM agents that real users touch,
 about owning a system end to end, or about a small team where the engineer
@@ -302,6 +302,128 @@ These read as template and cost more than they earn:
 
 ## Shape of a good email
 
+- 65 to 150 words. Count them. Past 150 it stops being read.
+- Paragraph 1: why this posting, in one or two sentences. Specific to it.
+- Paragraph 2: the card. One concrete thing he built, with its result.
+- Paragraph 3: a simple next step, phrased as a question.
+- Signature block from § Signature, nothing more.
+- No bullet lists. No headers. No markdown. Plain prose, like a person typing.
+- Mention the timezone or availability **only** when the posting cares about
+  overlap — and never in the same words twice.
+
+## Do not reuse a sentence
+
+Every email in a batch is written by the same hand, which is fine, and made of
+the same sentences, which is not. A whole run once went out sharing one
+identical line about timezone and overlap; fifteen strangers received the same
+words. Anything that reads like a stock closer, a stock sign-off or a stock
+availability line is rejected, and the rejection names the exact phrase so it can
+be replaced.
+
+Say the facts however this particular email needs them said. Not every email
+needs a timezone line at all.
+
+## Openers
+
+Never start with "I saw". Two thirds of a real batch opened that way.
+
+Name something from the posting and say why it made him write, or name the role
+and what he would bring, or — when the posting is thin — say so plainly and be
+short. Each email must open differently from the last.
+
+## The subject line
+
+It has to tell the reader what the email is about before they open it: **the
+role, and the company when the posting names it**. Four to nine words, no emoji,
+no exclamation marks.
+
+Never describe him in the subject. "Multi-tenant agent platform, AWS serverless,
+live customers" says nothing to somebody scanning an inbox — it reads like a
+pitch, which is how it gets deleted.
+
+    Founding AI Engineer at Astoria
+    Application: Voice AI Engineer
+    Staff Engineer, Agentic AI — Republic Services
+
+## Phrases that must never appear
+
+These read as template and cost more than they earn:
+
+- "I hope this email finds you well" / "I hope you're doing well"
+- "I am excited to apply" / "I am thrilled" / "I would love the opportunity"
+- "I came across your posting" / "I stumbled upon"
+- "passionate about", "cutting-edge", "state-of-the-art", "leverage",
+  "synergy", "game-changing", "world-class", "rockstar", "ninja"
+- "I believe I would be a great fit" — say what fits instead
+- "Please find my resume attached" — the attachment speaks for itself
+- "Thank you for your time and consideration"
+- Any sentence praising the company's mission, product or vision
+- Any sentence that starts "As a seasoned..."
+
+---
+
+## General facts (safe to state)
+
+- Twelve years of software engineering; roughly two years focused on LLM agents
+  in production.
+- Domains: banking, telecom, healthcare, retail, payments.
+- Primary stack: Java, Spring Boot, Spring AI. Also Angular, React, Python.
+- Cloud: AWS (Lambda, DynamoDB, EventBridge, SQS, Secrets Manager) and GCP
+  (Cloud Run, Spanner, Pub/Sub, Cloud DLP, KMS, Secret Manager).
+- Data: PostgreSQL, MySQL, Oracle, DynamoDB, Spanner.
+- Practice: trunk-based development, GitLab MR gates, dependency and container
+  scanning in CI, Kubernetes, microservices, RAG.
+- Certifications: Introduction to Data Science (statistical programming in R),
+  R Programming, Design Patterns & SOLID Principles, Software Architecture Case
+  Studies, Amazon EC2.
+- Education: BS Computer Science, Universidad Rafael Belloso Chacín (2008–2011).
+  MSc Computer Applications, University of Zulia (2018–2020).
+- Availability: full-time remote, or contractor. Full overlap with US hours.
+
+## Never claim
+
+- Any employer, client, product, number or certification not listed above.
+- Specific revenue, headcount, user counts or latency figures beyond the ~1s
+  voice turn target and the ~2s threshold it replaced.
+- Familiarity with the reader's company, product or funding.
+- Security clearance, US work authorization, or a visa status. He is in Colombia.
+- Fluency claims beyond: Spanish native, English professional working.
+
+---
+
+## How to open (rotate these; never reuse an opener)
+
+A cold email is read in the first line. Good openers name something specific
+from the posting. Patterns that work, in rough order of strength:
+
+1. Name the exact constraint the posting mentions, then say he has hit it.
+   *"The turn-latency line is what made me write."*
+2. Name the role and the one thing he'd bring.
+   *"About the Founding AI Engineer role you posted — what I'd bring is the
+   unglamorous half."*
+3. Name a shared problem shape.
+   *"You're putting agents into a system that already has an on-call rotation.
+   That's the work I do."*
+4. When the posting is thin, say so plainly and be short.
+   *"Your Hacker News post didn't say much about the stack, so I'll be brief."*
+
+## Phrases that must never appear
+
+These read as template and cost more than they earn:
+
+- "I hope this email finds you well" / "I hope you're doing well"
+- "I am excited to apply" / "I am thrilled" / "I would love the opportunity"
+- "I came across your posting" / "I stumbled upon"
+- "passionate about", "cutting-edge", "state-of-the-art", "leverage",
+  "synergy", "game-changing", "world-class", "rockstar", "ninja"
+- "I believe I would be a great fit" — say what fits instead
+- "Please find my resume attached" — the attachment speaks for itself
+- "Thank you for your time and consideration"
+- Any sentence praising the company's mission, product or vision
+- Any sentence that starts "As a seasoned..."
+
+## Shape of a good email
+
 - 90–160 words. Three short paragraphs at most.
 - Paragraph 1: why this posting, in one or two sentences. Specific.
 - Paragraph 2: the card. One concrete thing he built, with its result.
@@ -341,68 +463,20 @@ A follow-up is not the first email again. It is shorter and it adds something.
 
 ---
 
-## Exemplar emails
+## Register
 
-These set the register: what he opens with, how long, how it ends. Match the
-tone, never the wording — every email must be different.
+Not templates — these were copied word for word when they were written out in
+full, which is how the batch ended up sounding identical. What they show is the
+voice: flat, concrete, no adjectives doing work a number could do.
 
-### Example 1 — posting mentions voice agents and latency
+> The turn-latency line is what made me write.
 
-> Hi Sarah,
->
-> I saw the Voice AI Engineer opening at Loop. The turn-latency line is what made
-> me write.
->
-> I lead the agent platform at Vitzi tech — WhatsApp and voice agents on AWS
-> serverless for live businesses. Voice was unusable for us above about two
-> seconds per turn, so I built a custom LLM-streaming bridge over our telephony
-> provider and brought the turn budget down to a ~1s target. That one number
-> changed whether people stayed on the call.
->
-> Twelve years of Java/Spring behind that, mostly in banking and telecom, which
-> is where I learned to treat an agent like any other system that pages someone
-> at 3am.
->
-> Would it be useful to talk? I'm in Bogotá, UTC-5, full overlap with US hours.
->
-> Juan Anez
-> linkedin.com/in/janezmejias
+> What I'd bring to a founding role is the unglamorous half.
 
-### Example 2 — posting is a generalist AI engineer role at a small team
+> Your post didn't say much about the stack, so I'll keep this short.
 
-> Hi,
->
-> About the Founding AI Engineer role you posted on Hacker News.
->
-> I build and operate a multi-tenant agent platform at Vitzi tech: WhatsApp,
-> Instagram and voice, on Lambda, DynamoDB and SQS FIFO, for businesses that are
-> actually paying. What I'd bring to a founding role is the unglamorous half —
-> every run logged with a config fingerprint, prompt changes shipped as
-> experiments against a regression bank of replayed conversations, and a cost
-> per conversation that has to stay under the subscription price.
->
-> Before this, twelve years of Java and Spring in banking and telecom.
->
-> Happy to walk through the eval setup if it's relevant. I'm remote from
-> Colombia, UTC-5.
->
-> Juan Anez
-> linkedin.com/in/janezmejias
+> The part that took longest wasn't the bridge, it was knowing whether a change
+> helped.
 
-### Example 3 — the posting says almost nothing
-
-> Hi,
->
-> Your Hacker News post didn't say much about the stack, so I'll keep this short
-> and you can tell me if it's worth more.
->
-> I run a multi-tenant agent platform at Vitzi tech — WhatsApp and voice agents
-> on AWS serverless, for businesses that actually pay for it. Twelve years of
-> Java and Spring before that, mostly banking and telecom. The thing I'm good at
-> is the part after the demo works: evals, cost per conversation, and what
-> happens at 3am.
->
-> If you're hiring for that, I'd like to hear more. Remote from Colombia, UTC-5.
->
-> Juan Anez
-> linkedin.com/in/janezmejias
+Every email must be written from the posting in front of it, not assembled from
+fragments like these.

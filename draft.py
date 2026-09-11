@@ -113,9 +113,24 @@ These emails go out as a batch. Two of them reading alike is the single thing
 that makes a mail provider treat them as bulk. Rotate the opener patterns from
 the corpus and vary sentence rhythm between emails.
 
+LENGTH
+65 to 150 words. Count them before you answer. Past 150 it stops being read, and
+an over-long email is rejected rather than sent.
+
 THE SUBJECT
-Goes in the "subject" field, never inside the body. Four to nine words, concrete
-about the role, no emoji, no exclamation marks, no "Application for".
+Goes in the "subject" field, never inside the body. It must name THE ROLE, and
+the company when the posting names it — that is what tells the reader what this
+is before they open it. Four to nine words, no emoji, no exclamation marks.
+Never describe the writer in the subject: "Multi-tenant agent platform, AWS
+serverless" says nothing to somebody scanning an inbox. A subject that names
+neither the role nor the company is rejected.
+
+DO NOT REPEAT YOURSELF ACROSS EMAILS
+These go out as a batch to people who may compare notes. The corpus lists
+sentences that are burned because they already went to fifteen different
+inboxes word for word; writing one of them wastes the attempt. Never open with
+"I saw". Mention the timezone only when the posting cares about overlap, and
+never twice the same way.
 
 --- PROFILE CORPUS ---
 {corpus}
@@ -204,12 +219,62 @@ def unsupported_timespan(body, corpus):
     return ""
 
 
-def validate(subject, body, contact, corpus="", min_body=350):
+# Sentences that turned up verbatim across a real batch. Any one of them landing
+# in fifteen different inboxes is what makes a pile of mail look generated, so
+# they are refused rather than discouraged.
+WORN_OUT = (
+    "remote from bogot", "full overlap with us hours", "not a pilot",
+    "real customers, real money", "on call when something breaks",
+    "would it be worth a conversation", "i'd like to talk",
+)
+
+MAX_WORDS = 150
+MIN_WORDS = 65
+
+
+def subject_is_clear(subject, contact):
+    """
+    A subject has to say what the email is about — the role, or the company.
+    "Multi-tenant agent platform, AWS serverless" describes the sender and tells
+    the reader nothing about why this landed in their inbox.
+    """
+    low = subject.lower()
+    role = (contact.get("role") or "").lower()
+    company = (contact.get("company") or "").lower()
+    for anchor in (role, company):
+        if not anchor:
+            continue
+        words = [w for w in re.split(r"[^a-z0-9+.]+", anchor) if len(w) > 2]
+        if words and sum(1 for w in words if w in low) >= max(1, len(words) // 2):
+            return True
+    # Nothing to anchor to: at least sound like an application, not a pitch.
+    if not role and not company:
+        return True
+    return False
+
+
+def validate(subject, body, contact, corpus="", min_body=350, openers=()):
     subject, body = tidy(subject), (body or "").strip()
     if not 15 <= len(subject) <= 90:
         return "subject is %d characters" % len(subject)
+    if not subject_is_clear(subject, contact):
+        return ("subject %r names neither the role nor the company" % subject[:60])
+    count = len(body.split())
+    top = MAX_WORDS if min_body >= 350 else 90
+    if count > top:
+        return "body is %d words, over the %d it is allowed" % (count, top)
+    if min_body >= 350 and count < MIN_WORDS:
+        return "body is only %d words" % count
     if not min_body <= len(body) <= 1600:
         return "body is %d characters" % len(body)
+    lowered_body = body.lower()
+    for phrase in WORN_OUT:
+        if phrase in lowered_body:
+            return "reuses the worn-out phrase %r" % phrase
+    opening = " ".join(_opening_words(body))
+    for earlier in openers:
+        if opening and opening == " ".join(earlier.lower().split()[:5]):
+            return "opens the same way as another email: %r" % opening
     lowered = (subject + "\n" + body).lower()
     for phrase in BANNED:
         if phrase in lowered:
@@ -230,6 +295,12 @@ def validate(subject, body, contact, corpus="", min_body=350):
         if url.rstrip("/.,);") not in allowed:
             return "invented the URL %s" % url
     return ""
+
+
+def _opening_words(body, n=5):
+    paragraphs = [p.strip() for p in body.strip().split("\n\n") if p.strip()]
+    first = paragraphs[1] if len(paragraphs) > 1 else body
+    return [w.lower() for w in first.split()[:n]]
 
 
 def tidy_body(body):
@@ -316,7 +387,7 @@ def posting_text(contact):
     return "\n".join(["", "--- THE POSTING, AS PUBLISHED ---", body, "--- END POSTING ---"])
 
 
-def posting_for(contact, previous=None, stage=0, max_stage=2):
+def posting_for(contact, previous=None, stage=0, max_stage=2, openers=(), rejected=""):
     """
     `previous` is every email already sent to this person, oldest first. A
     follow-up gets all of them, not just the last: repeating the argument of the
@@ -355,7 +426,18 @@ def posting_for(contact, previous=None, stage=0, max_stage=2):
             "Start the body with this exact greeting, followed by a comma: %s"
             % (contact.get("greeting") or "Hi"),
         ])
-    return "\n".join([
+    avoid = []
+    if rejected:
+        # Re-asking the same question and hoping for a different answer is how a
+        # third of a batch ended up on the fallback template. Say what was wrong.
+        avoid += ["YOUR PREVIOUS ATTEMPT WAS REJECTED:",
+                  "  %s" % rejected,
+                  "Write it again and fix exactly that. Everything else can stay.",
+                  ""]
+    if openers:
+        avoid = ["", "OPENERS ALREADY USED IN THIS BATCH — do not echo any of them:"] + \
+                ["  - %s" % o for o in openers[:12]] + [""]
+    return "\n".join(avoid + [
         "THE POSTING",
         "Company: %s" % (contact.get("company") or "not stated in the posting"),
         "Role: %s" % (contact.get("role") or "not stated in the posting"),
@@ -369,14 +451,16 @@ def posting_for(contact, previous=None, stage=0, max_stage=2):
     ])
 
 
-def request_draft(client, stable, contact, previous=None, stage=0, max_stage=2):
+def request_draft(client, stable, contact, previous=None, stage=0, max_stage=2,
+                  openers=(), rejected=""):
     response = client.messages.create(
         model=MODEL,
         max_tokens=1200,
         # The stable block is marked: from the second call on it bills at ~0.1x.
         system=[{"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user",
-                   "content": posting_for(contact, previous, stage, max_stage)}],
+                   "content": posting_for(contact, previous, stage, max_stage,
+                                          openers, rejected)}],
         output_config={"format": {"type": "json_schema", "schema": OUTPUT_SCHEMA}},
     )
     text = next(b.text for b in response.content if b.type == "text")
@@ -410,16 +494,16 @@ class Spend:
                 + self.output * PRICE_OUTPUT)
 
 
-def with_retry(client, sdk, stable, contact, corpus, attempts=2, previous=None,
-               stage=0, max_stage=2):
+def with_retry(client, sdk, stable, contact, corpus, attempts=3, previous=None,
+               stage=0, max_stage=2, openers=()):
     spend, last = [], ""
     minimum = 180 if previous else 350       # a follow-up is deliberately short
     for _ in range(attempts):
         try:
             subject, body, card, usage = request_draft(
-                client, stable, contact, previous, stage, max_stage)
+                client, stable, contact, previous, stage, max_stage, openers, last)
             spend.append(usage)
-            reason = validate(subject, body, contact, corpus, minimum)
+            reason = validate(subject, body, contact, corpus, minimum, openers)
             if not reason:
                 return tidy(subject), tidy_body(body), card, spend, ""
             last = reason
@@ -585,6 +669,9 @@ def main():
     spend = Spend()
     written = reused = fell_back = 0
     failures, cards = [], {}
+    # What has already been written, so the next one is told not to echo it. The
+    # list grows as the run goes: the fiftieth email knows about the first.
+    openers = state.recent_openers(con) if not args.redo else []
 
     for i, c in enumerate(pending, 1):
         if args.limit and written >= args.limit:
@@ -610,7 +697,7 @@ def main():
 
         subject, body, card, usages, reason = with_retry(
             client, sdk, stable, c, corpus, previous=previous,
-            stage=stage, max_stage=args.max_follow_ups)
+            stage=stage, max_stage=args.max_follow_ups, openers=openers)
         for u in usages:
             spend.add(u)
         if reason.startswith("AUTH"):
@@ -632,6 +719,9 @@ def main():
             origin = ("ai-follow-up-%d" % stage) if args.follow_up else "ai"
             written += 1
             cards[card] = cards.get(card, 0) + 1
+            opening = " ".join(_opening_words(body, 8))
+            if opening:
+                openers.append(opening)
         state.save_draft(con, c["email"], fp, subject, body, origin, MODEL, reason, stage)
         if not args.follow_up:
             state.set_status(con, c["email"], "drafted")

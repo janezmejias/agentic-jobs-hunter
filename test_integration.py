@@ -934,6 +934,69 @@ def main():
               bool(nothing) and "cap" in nothing[0]["detail"],
               nothing[0]["detail"] if nothing else "no such check")
 
+        print("\n[24] The rules that stop a batch from reading as generated")
+        quill = {"company": "Quill", "role": "Fullstack SWE", "url": "https://q"}
+        good_body = "Hi,\n\n" + ("I built the eval loop behind it. " * 12) + "\n\nJuan Anez"
+
+        check("a subject naming the role passes",
+              drafter.subject_is_clear("Fullstack SWE at Quill", quill))
+        check("naming only the company passes",
+              drafter.subject_is_clear("Application: engineering at Quill", quill))
+        check("a subject describing the sender is refused",
+              not drafter.subject_is_clear(
+                  "Multi-tenant agent platform, AWS serverless, live customers", quill))
+        check("and validate() says so",
+              "names neither the role nor the company" in drafter.validate(
+                  "Multi-tenant agent platform, AWS serverless", good_body, quill))
+        check("with nothing to anchor to, any subject is allowed",
+              drafter.subject_is_clear("About your posting", {"company": "", "role": ""}))
+
+        long_body = "Hi,\n\n" + ("word " * 200) + "\n\nJuan Anez"
+        check("an email over 150 words is refused",
+              "over the 150" in drafter.validate("Fullstack SWE at Quill", long_body, quill),
+              drafter.validate("Fullstack SWE at Quill", long_body, quill))
+        short_body = "Hi,\n\n" + ("a short follow-up sentence. " * 9) + "\n\nJuan Anez"
+        check("and one under 65 words is too",
+              "only" in drafter.validate("Fullstack SWE at Quill", short_body, quill))
+        check("a follow-up is allowed to be short",
+              drafter.validate("Fullstack SWE at Quill", short_body, quill, min_body=180) == "")
+
+        for phrase in ("I'm remote from Bogotá, UTC-5, full overlap with US hours.",
+                       "Not a pilot: real customers, real money.",
+                       "Would it be worth a conversation?"):
+            worn = ("Hi,\n\n" + ("I built the eval loop behind it. " * 12) + phrase
+                    + "\n\nJuan Anez")
+            check("refuses the burned sentence %r" % phrase[:34],
+                  "worn-out" in drafter.validate("Fullstack SWE at Quill", worn, quill),
+                  drafter.validate("Fullstack SWE at Quill", worn, quill))
+
+        opener = "The turn-latency line is what made me write about this"
+        echoed = ("Hi,\n\n" + opener + ". "
+                  + ("I built the eval loop behind it. " * 11) + "\n\nJuan Anez")
+        check("an email opening like an earlier one is refused",
+              "opens the same way" in drafter.validate(
+                  "Fullstack SWE at Quill", echoed, quill, openers=[opener]),
+              drafter.validate("Fullstack SWE at Quill", echoed, quill, openers=[opener]))
+        check("a different opening is fine",
+              drafter.validate("Fullstack SWE at Quill", echoed, quill,
+                               openers=["Something else entirely happened here today"]) == "")
+
+        check("the retry is told what was rejected",
+              "PREVIOUS ATTEMPT WAS REJECTED" in drafter.posting_for(
+                  quill, rejected="body is 198 words, over the 150 it is allowed"))
+        check("and a first attempt is not",
+              "REJECTED" not in drafter.posting_for(quill))
+        check("used openers reach the prompt",
+              "do not echo any of them" in drafter.posting_for(quill, openers=[opener]))
+
+        con = state.connect(db)
+        state.save_draft(con, a, "opener-check", "Role at Co",
+                         "Hi,\n\nA quite distinctive opening sentence here.\n\nJuan", "ai")
+        got = state.recent_openers(con, 5)
+        con.close()
+        check("openers are read back from what was already written",
+              any("quite distinctive opening" in o for o in got), got)
+
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

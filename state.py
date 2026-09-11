@@ -266,6 +266,25 @@ def draft(con, email, fingerprint):
     return dict(r) if r else None
 
 
+def recent_openers(con, limit=40):
+    """
+    The first sentence of the drafts already written, so the next one can be
+    told not to echo them. Repetition across a batch is the single clearest
+    signal that a pile of mail was generated.
+    """
+    out = []
+    for r in con.execute("SELECT body FROM drafts ORDER BY created_at DESC, rowid DESC "
+                         "LIMIT ?", (int(limit),)):
+        body = (r["body"] or "").strip()
+        paragraphs = [p.strip() for p in body.split("\n\n") if p.strip()]
+        if len(paragraphs) < 2:
+            continue
+        first = paragraphs[1].split(". ")[0].strip()
+        if first:
+            out.append(first[:120])
+    return out
+
+
 def latest_draft(con, email):
     # rowid breaks the tie: created_at only has second resolution, and an edit
     # from the UI can land in the same second as the draft it replaces. Without
