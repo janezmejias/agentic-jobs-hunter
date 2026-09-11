@@ -5,6 +5,7 @@ import type { Contact, ContactStatus, Snapshot } from "../types";
 import { sendBatch } from "../api";
 import ContactList, { OriginBadge } from "../ContactList";
 import Modal from "../ui/Modal";
+import SearchInput from "../ui/SearchInput";
 import Button from "../ui/Button";
 import Badge from "../ui/Badge";
 import { Card, Empty, SectionHeading } from "../ui/Card";
@@ -27,10 +28,19 @@ export default function ContactsView({
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const filter = (params.get("status") as Filter) || "drafted";
+  const query = params.get("q") ?? "";
   const selected = email ?? null;
 
-  const setFilter = (next: Filter) =>
-    setParams(next === "drafted" ? {} : { status: next }, { replace: true });
+  // Both the status and the search live in the URL, so a refresh — or a link you
+  // paste to yourself — lands on the same list.
+  function setParam(key: "status" | "q", value: string, fallback: string) {
+    const next = new URLSearchParams(params);
+    if (!value || value === fallback) next.delete(key);
+    else next.set(key, value);
+    setParams(next, { replace: true });
+  }
+  const setFilter = (next: Filter) => setParam("status", next, "drafted");
+  const setQuery = (next: string) => setParam("q", next, "");
   const setSelected = (address: string) =>
     navigate(`/contacts/${encodeURIComponent(address)}?${params.toString()}`);
 
@@ -50,12 +60,44 @@ export default function ContactsView({
     });
   }
 
-  const visible = useMemo(
+  const byStatus = useMemo(
     () =>
       filter === "all"
         ? snapshot.contacts
         : snapshot.contacts.filter((c) => c.status === filter),
     [snapshot, filter],
+  );
+
+  // Every word has to appear somewhere — company, role, address, the posting, or
+  // the text of the email itself. Searching for a phrase you remember writing is
+  // as useful as searching for a company.
+  const matcher = useMemo(() => {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return null;
+    return (c: Contact) => {
+      const haystack = [
+        c.company, c.role, c.email, c.name, c.reference, c.scope,
+        c.original_headline, c.description, c.subject, c.body, c.note,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return words.every((w) => haystack.includes(w));
+    };
+  }, [query]);
+
+  const visible = useMemo(
+    () => (matcher ? byStatus.filter(matcher) : byStatus),
+    [byStatus, matcher],
+  );
+
+  // Searching for a company and finding nothing because it sits under another
+  // tab is a trap. Say so rather than let it read as "not here at all".
+  const elsewhere = useMemo(
+    () =>
+      matcher && visible.length === 0 && filter !== "all"
+        ? snapshot.contacts.filter(matcher).length
+        : 0,
+    [matcher, visible.length, filter, snapshot],
   );
   const current = snapshot.contacts.find((c) => c.email === selected) ?? null;
   // You can only send to someone who is actually owed an email.
@@ -123,6 +165,14 @@ export default function ContactsView({
 
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[30%] max-w-[440px] min-w-[300px] flex-shrink-0 flex-col border-r border-line">
+          <div className="flex-shrink-0 border-b border-line bg-surface p-2.5">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Search company, role, address or the email itself"
+              count={{ showing: visible.length, total: byStatus.length }}
+            />
+          </div>
           <label className="flex flex-shrink-0 cursor-pointer items-center gap-2.5 border-b border-line bg-surface px-3 py-2 text-[13.5px] text-dim">
             <input
               type="checkbox"
@@ -132,7 +182,9 @@ export default function ContactsView({
               }
               className="h-4 w-4 cursor-pointer accent-[var(--brand)]"
             />
-            {allPicked ? "Unpick all" : `Pick all ${sendable.length} in this filter`}
+            {allPicked
+              ? "Unpick all"
+              : `Pick all ${sendable.length}${query.trim() ? " matching" : " in this filter"}`}
           </label>
           <ContactList
             className="min-h-0 flex-1"
@@ -141,7 +193,13 @@ export default function ContactsView({
             onSelect={setSelected}
             picked={picked}
             onPick={pick}
-            empty="Nothing in this filter."
+            empty={
+              !query.trim()
+                ? "Nothing in this filter."
+                : elsewhere > 0
+                  ? `Nothing here, but ${elsewhere} ${elsewhere === 1 ? "match" : "matches"} under All.`
+                  : `Nothing matches "${query}".`
+            }
             meta={(c) => (
             <>
               {c.due_follow_up && <Badge tone="warn">follow up</Badge>}
