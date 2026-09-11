@@ -339,8 +339,57 @@ def _opening_words(body, n=5):
     return [w.lower() for w in first.split()[:n]]
 
 
+LONG_DASH = re.compile(r"\s*[\u2014\u2013]\s*")
+SENTENCE_END = re.compile(r"[.!?\n]")
+
+
+def undash(body):
+    """Take the long dash out of a body without asking the model twice.
+
+    It is the loudest tell that an email was generated, and the model does not
+    reliably stop using it when told: a run of forty retries fell back to the
+    template twenty-five times, every one of them on this rule alone. The break
+    a dash marks is always available as a comma, a colon or a full stop, so
+    pick one here and leave the model to write.
+
+    Which one depends on the sentence. A pair of dashes is a parenthesis and
+    becomes a pair of commas. A single dash after a list is a colon, because a
+    comma there would just join the list. A single dash after a clause long
+    enough to stand alone becomes a full stop, which is the one that most often
+    reads like someone typing.
+    """
+    body = body or ""
+    out, last = [], 0
+    for m in LONG_DASH.finditer(body):
+        head = body[:m.start()]
+        sentence_start = max((n + 1 for n, ch in enumerate(head) if SENTENCE_END.match(ch)),
+                             default=0)
+        sentence = body[sentence_start:]
+        clause = head[sentence_start:].strip()
+        stop = SENTENCE_END.search(sentence)
+        if len(LONG_DASH.findall(sentence[:stop.start()] if stop else sentence)) > 1:
+            repl = ", "
+        elif "," in clause:
+            repl = ": "
+        elif len(clause.split()) >= 5:
+            repl = ". "
+        else:
+            repl = ", "
+        out.append(body[last:m.start()])
+        out.append(repl)
+        last = m.end()
+        if repl == ". ":
+            out.append(body[last:last + 1].upper())
+            last += 1
+    out.append(body[last:])
+    joined = "".join(out)
+    joined = re.sub(r",\s*([,.;:?!])", r"\1", joined)
+    return re.sub(r"\s+([,;:])", r"\1", joined)
+
+
 def tidy_body(body):
-    return re.sub(r"\n{3,}", "\n\n", (body or "").replace("\r\n", "\n").strip())
+    body = undash((body or "").replace("\r\n", "\n"))
+    return re.sub(r"\n{3,}", "\n\n", body.strip())
 
 
 # --------------------------------------------------------------------- the key
@@ -539,9 +588,13 @@ def with_retry(client, sdk, stable, contact, corpus, attempts=3, previous=None,
             subject, body, card, usage = request_draft(
                 client, stable, contact, previous, stage, max_stage, openers, last)
             spend.append(usage)
+            # Normalise first, then judge. The punctuation rule is enforced by
+            # rewriting, not by retrying, so validate() must see what would be
+            # sent rather than what the model happened to type.
+            subject, body = tidy(subject), tidy_body(body)
             reason = validate(subject, body, contact, corpus, minimum, openers, used)
             if not reason:
-                return tidy(subject), tidy_body(body), card, spend, ""
+                return subject, body, card, spend, ""
             last = reason
         except (sdk.AuthenticationError, sdk.PermissionDeniedError) as ex:
             return "", "", "", spend, "AUTH: %s" % getattr(ex, "message", ex)

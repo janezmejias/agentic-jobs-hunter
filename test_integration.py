@@ -1014,6 +1014,30 @@ def main():
               drafter.validate("Fullstack SWE at Quill", with_closer, quill,
                                used={"happy to send over the write-up"}) == "")
 
+        check("a dash between two standing clauses becomes a full stop",
+              drafter.tidy_body("I carry the pager myself \u2014 that teaches you what matters.")
+              == "I carry the pager myself. That teaches you what matters.",
+              drafter.tidy_body("I carry the pager myself \u2014 that teaches you what matters."))
+        check("a dash after a list becomes a colon",
+              drafter.tidy_body("Lambda, DynamoDB, SQS \u2014 the stack that survives.")
+              == "Lambda, DynamoDB, SQS: the stack that survives.",
+              drafter.tidy_body("Lambda, DynamoDB, SQS \u2014 the stack that survives."))
+        check("a pair of dashes becomes a pair of commas",
+              drafter.tidy_body("The slow half \u2014 auth, audit trails \u2014 is what sticks.")
+              == "The slow half, auth, audit trails, is what sticks.",
+              drafter.tidy_body("The slow half \u2014 auth, audit trails \u2014 is what sticks."))
+        check("a short head keeps a comma",
+              drafter.tidy_body("Founding Engineer \u2013 remote.") == "Founding Engineer, remote.")
+        check("paragraphs survive the rewrite",
+              drafter.tidy_body("Hi,\n\nYour post \u2014 the Rust one \u2014 was clear.\n\nJuan")
+              == "Hi,\n\nYour post, the Rust one, was clear.\n\nJuan",
+              drafter.tidy_body("Hi,\n\nYour post \u2014 the Rust one \u2014 was clear.\n\nJuan"))
+        check("so a draft is never rejected for punctuation it can be cured of",
+              drafter.validate("Fullstack SWE at Quill",
+                               drafter.tidy_body("Hi,\n\n" + ("I built the eval loop \u2014 the slow "
+                                                 "half \u2014 behind it. " * 9) + "\n\nJuan Anez"),
+                               quill) == "")
+
         dashed = "Hi,\n\n" + ("I built the eval loop, the slow half, behind it. " * 9) + "\n\nJuan Anez"
         check("commas are fine", drafter.validate("Fullstack SWE at Quill", dashed, quill) == "",
               drafter.validate("Fullstack SWE at Quill", dashed, quill))
